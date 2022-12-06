@@ -1,20 +1,40 @@
 import styled from "@emotion/styled";
 import { ArrowBack, ArrowBackIos, ArrowDownward, ArrowForward, ArrowForwardIos, ArrowUpward, List } from "@mui/icons-material";
 import { Button } from "@mui/material";
-import { Joystick } from 'react-joystick-component';
+import { OrbitControls, Sky } from "@react-three/drei";
+import { Canvas, ThreeEvent } from "@react-three/fiber";
+import { Suspense, useState } from "react";
+
 
 export const PostPage = () => {
-    const handleMove = (e: any) => {
-        console.log(e);
+    const [hoverPointX,setHoverPointX] = useState(0.0);
+    const [hoverPointY,setHoverPointY] = useState(0.0); 
+
+    const hoverGround = (e:ThreeEvent<PointerEvent>) => {
+        setHoverPointX(Math.floor(e.point.x)+0.5)
+        setHoverPointY(Math.floor(e.point.z)+0.5)
+        
     }
 
-    const handleStart = (e: any) => {
-        console.log(e);
+    const onClickGround = (e:ThreeEvent<PointerEvent>) => {
+        
     }
 
-    const handleStop = (e: any) => {
-        console.log(e);
+
+    type Props = {
+        count:number,
+        x:number,
+        y:number,
     }
+
+    const Floor = (props:Props) => {
+        const {count,x,y} = props;
+        for(let i=0;i<count;i++) {
+                
+        }
+       
+    }
+
 
     return(
         <>
@@ -26,22 +46,27 @@ export const PostPage = () => {
                     <ArrowForwardIos/>
                 </Button>
             </PostHeader>
-            
-            <Controller>
-                <Joystick size={80} move={handleMove} start={handleStart} stop={handleStop}
-                baseColor={"#808080"} stickColor={"#000"}/>
-                
-            </Controller>
-            <SlotBar>
-                    <OptionSlot>
-                        <List sx={{color:"#fff",fontSize:30}}/>
-                    </OptionSlot>
-                    <Slot/>
-                    <Slot/>
-                    <Slot/>
-                    <Slot/>
-                </SlotBar>
-            
+            <Suspense>
+                <Builder>
+                    <Canvas>
+                        <axesHelper args={[2]}/>
+                        <gridHelper args={[10,10]}/>
+                        <OrbitControls/>
+                        <ambientLight/>
+                        <Sky/>
+                        <mesh rotation={[-Math.PI/2,0,0]} 
+                            onPointerMove={hoverGround}
+                            visible ={false}
+                        >
+                            <planeGeometry args={[10,10]}/>
+                        </mesh>
+                        <mesh rotation={[-Math.PI/2,0,0]} position={[hoverPointX,0,hoverPointY]}>
+                            <planeGeometry args={[1,1]}/>
+                            <meshStandardMaterial color={"#808080"}/>
+                        </mesh>
+                    </Canvas>
+                </Builder>
+            </Suspense>
             
         </>
     );
@@ -53,38 +78,12 @@ const PostHeader = styled.header`
     justify-content:space-between;
     padding:0 15px;
     width:100%;
+    position:fixed;
+    top:0;
+    z-index:3;
 `;
 
-const Controller = styled.div`
-    padding:0 15px;
-    text-align:center;
-    width:100%;
+
+const Builder = styled.div`
+    height:100vh;
 `;
-
-const SlotBar = styled.div`
-    display:inline-flex;
-    background-color:#000;
-    border-radius:3px;
-
-`;
-
-const Slot = styled.div`
-    height:40px;
-    width:40px;
-    boeder-radius:5px;
-    border:solid 2px #e0e8e8;
-    background-color:#808080;
-    margin:5px 3px;
-`
-
-const OptionSlot = styled.div`
-    height:40px;
-    width:40px;
-    boeder-radius:5px;
-    border:solid 2px #e0e8e8;
-    background-color:#000;
-    margin:5px 3px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-`
